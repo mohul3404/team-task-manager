@@ -27,37 +27,102 @@ A full-stack project & task management app with role-based access, Kanban boards
 | ORM | Prisma |
 | Database | PostgreSQL |
 | Auth | JWT |
-| Hosting | Fly.io (backend) + Supabase (DB) + Vercel (frontend) |
+| Deployment | Render.com (free tier) |
 
-## Quick Start (Local)
+---
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL running locally
+## Deploying on Render (Manual — No Blueprint)
 
-### Backend
+Deploy in this exact order: **Database → Backend → Frontend**
 
+---
+
+### Step 1 — PostgreSQL Database
+
+1. [render.com](https://render.com) → **New → PostgreSQL**
+2. Fill in:
+   - **Name:** `taskflow-db`
+   - **Plan:** Free
+3. Click **Create Database**
+4. Wait until status is **Available**, then open the database page
+5. Scroll down to **Connections** — copy the **Internal Database URL**
+   (looks like `postgresql://taskflow_db_user:...@dpg-....render.com/taskflow_db`)
+
+---
+
+### Step 2 — Backend Web Service
+
+1. **New → Web Service**
+2. Connect your GitHub repo → select `team-task-manager`
+3. Settings:
+   | Field | Value |
+   |-------|-------|
+   | **Root Directory** | `backend` |
+   | **Runtime** | `Node` |
+   | **Build Command** | `npm install` |
+   | **Start Command** | `npm start` |
+4. Scroll down to **Environment Variables** → add these:
+
+   | Key | Value |
+   |-----|-------|
+   | `DATABASE_URL` | *(paste Internal Database URL from Step 1)* |
+   | `JWT_SECRET` | *(any long random string, e.g. `mysecretkey123abc`)* |
+   | `NODE_ENV` | `production` |
+   | `FRONTEND_URL` | *(leave blank for now — fill after Step 3)* |
+
+5. Click **Create Web Service**
+6. Wait for the deploy to finish — the start command automatically runs database migrations
+7. Copy your backend URL: `https://taskflow-backend-xxxx.onrender.com`
+
+---
+
+### Step 3 — Frontend Static Site
+
+1. **New → Static Site**
+2. Connect the same GitHub repo → select `team-task-manager`
+3. Settings:
+   | Field | Value |
+   |-------|-------|
+   | **Root Directory** | `frontend` |
+   | **Build Command** | `npm install && npm run build` |
+   | **Publish Directory** | `dist` |
+4. Add **Environment Variable**:
+
+   | Key | Value |
+   |-----|-------|
+   | `VITE_API_URL` | `https://taskflow-backend-xxxx.onrender.com/api` |
+
+   *(use your actual backend URL from Step 2)*
+
+5. Scroll to **Redirects/Rewrites** → click **Add Rule**:
+   | Field | Value |
+   |-------|-------|
+   | **Source** | `/*` |
+   | **Destination** | `/index.html` |
+   | **Action** | `Rewrite` |
+
+6. Click **Create Static Site**
+7. Copy your frontend URL: `https://taskflow-frontend-xxxx.onrender.com`
+
+---
+
+### Step 4 — Connect Frontend URL to Backend
+
+1. Go to your **backend Web Service** → **Environment**
+2. Set `FRONTEND_URL` = `https://taskflow-frontend-xxxx.onrender.com`
+3. Click **Save Changes** — the backend redeploys automatically
+
+---
+
+### Step 5 — Seed Demo Data (optional)
+
+In the backend Web Service → **Shell** tab:
 ```bash
-cd backend
-npm install
-cp .env.example .env   # set DATABASE_URL, JWT_SECRET, FRONTEND_URL
-npx prisma migrate dev --name init
-node prisma/seed.js    # optional: load demo data
-npm run dev
+node prisma/seed.js
 ```
 
-### Frontend
+This creates three demo accounts:
 
-```bash
-cd frontend
-npm install
-cp .env.example .env   # set VITE_API_URL=http://localhost:5000/api
-npm run dev
-```
-
-Visit **http://localhost:5173**
-
-### Demo Accounts
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@demo.com | password123 |
@@ -66,87 +131,24 @@ Visit **http://localhost:5173**
 
 ---
 
-## Free Deployment (Fly.io + Supabase + Vercel)
-
-### Step 1 — Database: Supabase (free PostgreSQL)
-
-1. Create a free account at [supabase.com](https://supabase.com)
-2. New Project → choose a region close to your Fly.io region
-3. Go to **Settings → Database → Connection string → URI**
-4. Copy the connection string — looks like:
-   ```
-   postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
-   ```
-   Keep this — it's your `DATABASE_URL`
-
----
-
-### Step 2 — Backend: Fly.io
-
-#### Install the CLI
-```bash
-# macOS/Linux
-curl -L https://fly.io/install.sh | sh
-
-# Windows (PowerShell)
-pwsh -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://fly.io/install.ps1'))"
-```
-
-#### Deploy
+## Quick Start (Local)
 
 ```bash
+# Backend
 cd backend
+npm install
+cp .env.example .env     # set DATABASE_URL, JWT_SECRET, FRONTEND_URL
+npx prisma migrate dev --name init
+npm run dev
 
-# Login (creates a free account if you don't have one)
-fly auth login
-
-# Create the app (only first time — fly.toml already has app name)
-fly launch --no-deploy
-
-# Set secrets (never stored in fly.toml)
-fly secrets set DATABASE_URL="postgresql://postgres:PASSWORD@db.REF.supabase.co:5432/postgres"
-fly secrets set JWT_SECRET="any-long-random-string-here"
-fly secrets set FRONTEND_URL="https://your-vercel-app.vercel.app"
-
-# Deploy
-fly deploy
+# Frontend (new terminal)
+cd frontend
+npm install
+cp .env.example .env     # set VITE_API_URL=http://localhost:5000/api
+npm run dev
 ```
 
-The start command (`npm start`) automatically runs `prisma migrate deploy` before starting the server.
-
-#### Seed demo data (optional)
-```bash
-fly ssh console -C "node prisma/seed.js"
-```
-
-Your backend will be live at: `https://taskflow-backend.fly.dev`
-
----
-
-### Step 3 — Frontend: Vercel
-
-1. Go to [vercel.com](https://vercel.com) → **New Project** → Import `team-task-manager`
-2. Set **Root Directory** to `frontend`
-3. Add environment variable:
-   ```
-   VITE_API_URL = https://taskflow-backend.fly.dev/api
-   ```
-4. Click **Deploy**
-
-> `frontend/vercel.json` already handles SPA rewrites and build settings.
-
----
-
-### Step 4 — Wire them together
-
-After Vercel gives you a URL (e.g. `https://team-task-manager.vercel.app`), update the backend's `FRONTEND_URL` secret:
-
-```bash
-cd backend
-fly secrets set FRONTEND_URL="https://team-task-manager.vercel.app"
-```
-
-Fly.io will automatically restart the backend with the new value.
+Visit **http://localhost:5173**
 
 ---
 
@@ -175,7 +177,7 @@ Fly.io will automatically restart the backend with the new value.
 ```
 team-task-manager/
 ├── backend/
-│   ├── fly.toml          # Fly.io deployment config
+│   ├── fly.toml          # Fly.io config (alternative deployment)
 │   ├── prisma/           # Schema + migrations + seed
 │   └── src/
 │       ├── controllers/  # Route handlers
@@ -183,7 +185,7 @@ team-task-manager/
 │       ├── routes/       # Express routers
 │       └── utils/        # Prisma client + Socket.io
 └── frontend/
-    ├── vercel.json       # Vercel build + SPA routing config
+    ├── vercel.json       # Vercel/static site config
     └── src/
         ├── components/   # Reusable UI components
         ├── hooks/        # React Query hooks
