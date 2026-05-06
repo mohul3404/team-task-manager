@@ -66,24 +66,20 @@ async function main() {
   });
 
   const tasks = [
-    { title: 'Design homepage mockup', status: 'DONE', priority: 'HIGH', assigneeId: member1.id },
-    { title: 'Set up CI/CD pipeline', status: 'IN_PROGRESS', priority: 'URGENT', assigneeId: admin.id },
-    { title: 'Write API documentation', status: 'IN_PROGRESS', priority: 'MEDIUM', assigneeId: member2.id },
-    { title: 'Implement authentication', status: 'IN_REVIEW', priority: 'HIGH', assigneeId: admin.id },
-    { title: 'Mobile responsive layout', status: 'TODO', priority: 'MEDIUM', assigneeId: member1.id },
-    { title: 'Performance optimization', status: 'TODO', priority: 'LOW', assigneeId: null },
-    {
-      title: 'Security audit',
-      status: 'TODO',
-      priority: 'URGENT',
-      assigneeId: admin.id,
-      dueDate: new Date(Date.now() - 86400000),
-    },
+    { id: 'demo-task-1', title: 'Design homepage mockup', status: 'DONE', priority: 'HIGH', assigneeId: member1.id },
+    { id: 'demo-task-2', title: 'Set up CI/CD pipeline', status: 'IN_PROGRESS', priority: 'URGENT', assigneeId: admin.id },
+    { id: 'demo-task-3', title: 'Write API documentation', status: 'IN_PROGRESS', priority: 'MEDIUM', assigneeId: member2.id },
+    { id: 'demo-task-4', title: 'Implement authentication', status: 'IN_REVIEW', priority: 'HIGH', assigneeId: admin.id },
+    { id: 'demo-task-5', title: 'Mobile responsive layout', status: 'TODO', priority: 'MEDIUM', assigneeId: member1.id },
+    { id: 'demo-task-6', title: 'Performance optimization', status: 'TODO', priority: 'LOW', assigneeId: null },
+    { id: 'demo-task-7', title: 'Security audit', status: 'TODO', priority: 'URGENT', assigneeId: admin.id, dueDate: new Date(Date.now() - 86400000) },
   ];
 
   for (const task of tasks) {
-    await prisma.task.create({
-      data: {
+    await prisma.task.upsert({
+      where: { id: task.id },
+      update: {},
+      create: {
         ...task,
         projectId: project.id,
         creatorId: admin.id,
