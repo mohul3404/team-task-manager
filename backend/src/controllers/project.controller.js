@@ -10,7 +10,14 @@ const projectSelect = {
   updatedAt: true,
   owner: { select: { id: true, name: true, email: true, avatar: true } },
   members: {
-    include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
+    select: {
+      id: true,
+      projectId: true,
+      userId: true,
+      role: true,
+      joinedAt: true,
+      user: { select: { id: true, name: true, email: true, avatar: true } }
+    },
   },
   _count: { select: { tasks: true } },
 };
