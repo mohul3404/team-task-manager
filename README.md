@@ -114,14 +114,9 @@ Deploy in this exact order: **Database → Backend → Frontend**
 
 ---
 
-### Step 5 — Seed Demo Data (optional)
+### Step 5 — Demo Data
 
-In the backend Web Service → **Shell** tab:
-```bash
-node prisma/seed.js
-```
-
-This creates three demo accounts:
+Demo data is seeded **automatically on every deploy** — the `npm start` command runs migrations then seed before starting the server. Demo accounts:
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -138,7 +133,7 @@ This creates three demo accounts:
 cd backend
 npm install
 cp .env.example .env     # set DATABASE_URL, JWT_SECRET, FRONTEND_URL
-npx prisma migrate dev --name init
+npx prisma migrate dev
 npm run dev
 
 # Frontend (new terminal)
