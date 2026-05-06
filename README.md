@@ -18,7 +18,7 @@ A full-stack project & task management app with role-based access, Kanban boards
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 + TypeScript + Vite |
+| Frontend | React 19 + TypeScript + Vite |
 | Styling | Tailwind CSS |
 | State | Zustand + TanStack Query |
 | Charts | Recharts |
@@ -28,7 +28,7 @@ A full-stack project & task management app with role-based access, Kanban boards
 | Database | PostgreSQL |
 | Auth | JWT |
 | Real-time | Socket.io |
-| Deployment | Railway |
+| Deployment | Render |
 
 ## Quick Start (Local)
 
@@ -65,22 +65,40 @@ Visit **http://localhost:5173**
 | Member | alice@demo.com | password123 |
 | Member | bob@demo.com | password123 |
 
-## Deployment on Railway
+## Deployment on Render
 
-### Backend Service
-1. Create a new Railway project
-2. Add a PostgreSQL database plugin
-3. Deploy the `backend/` folder
-4. Set environment variables:
-   - `DATABASE_URL` — auto-filled by Railway PostgreSQL plugin
-   - `JWT_SECRET` — any long random string
-   - `FRONTEND_URL` — your frontend Railway URL
-5. Run migrations: Railway auto-runs `npx prisma migrate deploy && node src/server.js`
+This project uses a `render.yaml` blueprint for one-click deployment.
 
-### Frontend Service
-1. Add a second service in the same Railway project
-2. Deploy the `frontend/` folder
-3. Set `VITE_API_URL` to your backend Railway URL + `/api`
+### Steps
+
+1. Push this repository to GitHub
+2. Go to [render.com](https://render.com) → **New** → **Blueprint**
+3. Connect your GitHub repo — Render will detect `render.yaml` automatically
+4. After both services and the database are provisioned:
+   - Copy the **taskflow-backend** service URL (e.g. `https://taskflow-backend.onrender.com`)
+   - Set `FRONTEND_URL` on the backend service to your frontend URL (e.g. `https://taskflow-frontend.onrender.com`)
+   - Set `VITE_API_URL` on the frontend service to `<backend-url>/api`
+5. Trigger a redeploy of both services after setting env vars
+6. Seed the database (optional):
+   ```bash
+   # In the Render backend service Shell tab
+   node prisma/seed.js
+   ```
+
+### Manual Deployment (without Blueprint)
+
+**Backend — Web Service**
+- Root directory: `backend`
+- Build command: `npm install`
+- Start command: `npm start` *(runs migrations + server)*
+- Environment variables: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `NODE_ENV=production`
+
+**Frontend — Static Site**
+- Root directory: `frontend`
+- Build command: `npm install && npm run build`
+- Publish directory: `dist`
+- Environment variable: `VITE_API_URL=<backend-url>/api`
+- Rewrite rule: `/* → /index.html` (enables client-side routing)
 
 ## API Endpoints
 
@@ -88,21 +106,25 @@ Visit **http://localhost:5173**
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register |
 | POST | `/api/auth/login` | Login |
+| GET | `/api/auth/me` | Current user |
 | GET | `/api/projects` | List user's projects |
 | POST | `/api/projects` | Create project |
 | GET | `/api/projects/:id` | Get project |
 | POST | `/api/projects/:id/members` | Add member |
+| DELETE | `/api/projects/:id/members/:userId` | Remove member |
 | GET | `/api/tasks/project/:id` | List project tasks |
 | POST | `/api/tasks/project/:id` | Create task |
 | PUT | `/api/tasks/:id` | Update task |
 | DELETE | `/api/tasks/:id` | Delete task |
 | POST | `/api/tasks/:id/comments` | Add comment |
 | GET | `/api/dashboard` | Dashboard stats |
+| GET | `/api/health` | Health check |
 
 ## Project Structure
 
 ```
 team-task-manager/
+├── render.yaml           # Render deployment blueprint
 ├── backend/
 │   ├── prisma/           # Schema + migrations + seed
 │   └── src/
