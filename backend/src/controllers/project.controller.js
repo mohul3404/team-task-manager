@@ -32,7 +32,7 @@ async function getProjects(req, res) {
 
     const projects = await prisma.project.findMany({
       where: { id: { in: projectIds } },
-      include: projectSelect,
+      select: projectSelect,
       orderBy: { updatedAt: 'desc' },
     });
 
@@ -65,7 +65,7 @@ async function createProject(req, res) {
         ownerId: req.user.id,
         members: { create: { userId: req.user.id, role: 'ADMIN' } },
       },
-      include: projectSelect,
+      select: projectSelect,
     });
 
     await prisma.activity.create({
@@ -90,7 +90,7 @@ async function getProject(req, res) {
     const { projectId } = req.params;
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      include: projectSelect,
+      select: projectSelect,
     });
     if (!project) return res.status(404).json({ message: 'Project not found' });
     res.json({ project });
@@ -111,7 +111,7 @@ async function updateProject(req, res) {
         ...(description !== undefined && { description: description?.trim() }),
         ...(status && { status }),
       },
-      include: projectSelect,
+      select: projectSelect,
     });
 
     await prisma.activity.create({
