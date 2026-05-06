@@ -4,7 +4,6 @@ import { Trash2, Send, X } from 'lucide-react';
 import type { Task, TaskStatus, Priority } from '../../types';
 import { Modal } from '../ui/Modal';
 import { Avatar } from '../ui/Avatar';
-import { PriorityBadge, StatusBadge } from '../ui/Badge';
 import { useUpdateTask, useDeleteTask, useAddComment, useDeleteComment } from '../../hooks/useTasks';
 import { useAuthStore } from '../../store/auth.store';
 import { STATUS_CONFIG, PRIORITY_CONFIG } from '../../lib/utils';

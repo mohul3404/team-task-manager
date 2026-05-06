@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  Users, BarChart2, Activity, Plus, Settings, Search, Filter,
-  List, Columns, UserPlus, ChevronDown
+  Activity, Plus, Search,
+  List, Columns, UserPlus
 } from 'lucide-react';
 import { useProject } from '../hooks/useProjects';
 import { useProjectTasks } from '../hooks/useTasks';
@@ -14,9 +14,7 @@ import { TaskCard } from '../components/tasks/TaskCard';
 import { TaskModal } from '../components/tasks/TaskModal';
 import { CreateTaskModal } from '../components/tasks/CreateTaskModal';
 import { Avatar } from '../components/ui/Avatar';
-import { StatusBadge, PriorityBadge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
-import { Modal } from '../components/ui/Modal';
 import { AddMemberModal } from '../components/projects/AddMemberModal';
 import { formatRelativeTime } from '../lib/utils';
 import type { Task, TaskStatus, Priority } from '../types';

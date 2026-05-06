@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, FolderKanban, LogOut, Plus, CheckSquare, Settings,
 } from 'lucide-react';
@@ -14,7 +14,6 @@ interface Props {
 export function Sidebar({ onNewProject }: Props) {
   const { user, logout } = useAuthStore();
   const { data: projects } = useProjects();
-  const navigate = useNavigate();
 
   return (
     <aside className="w-64 bg-gray-900 text-white flex flex-col h-screen fixed left-0 top-0 z-40">

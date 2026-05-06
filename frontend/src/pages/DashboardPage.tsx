@@ -11,7 +11,6 @@ import {
 import { useDashboard } from '../hooks/useDashboard';
 import { useAuthStore } from '../store/auth.store';
 import { Avatar } from '../components/ui/Avatar';
-import { PriorityBadge, StatusBadge } from '../components/ui/Badge';
 import { formatRelativeTime, isOverdue } from '../lib/utils';
 
 const STATUS_COLORS: Record<string, string> = {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
 import type { Task, TaskStatus, ProjectMember } from '../../types';
 import { TaskCard } from './TaskCard';

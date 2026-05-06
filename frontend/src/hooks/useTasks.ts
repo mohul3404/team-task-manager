@@ -82,7 +82,7 @@ export function useUpdateTask() {
 export function useDeleteTask() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ taskId, projectId }: { taskId: string; projectId: string }) => {
+    mutationFn: async ({ taskId, projectId: _projectId }: { taskId: string; projectId: string }) => {
       await api.delete(`/tasks/${taskId}`);
     },
     onSuccess: (_, vars) => {
@@ -96,7 +96,7 @@ export function useDeleteTask() {
 export function useAddComment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ taskId, projectId, content }: { taskId: string; projectId: string; content: string }) => {
+    mutationFn: async ({ taskId, projectId: _p, content }: { taskId: string; projectId: string; content: string }) => {
       const { data } = await api.post(`/tasks/${taskId}/comments`, { content });
       return data.comment;
     },
@@ -110,7 +110,7 @@ export function useAddComment() {
 export function useDeleteComment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ commentId, projectId }: { commentId: string; projectId: string }) => {
+    mutationFn: async ({ commentId, projectId: _p }: { commentId: string; projectId: string }) => {
       await api.delete(`/tasks/comments/${commentId}`);
     },
     onSuccess: (_, vars) => {
